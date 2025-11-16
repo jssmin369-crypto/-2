@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>간단한 BGM 페이지</title>
+  <title>이야기의 시작</title>
   <style>
     html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Roboto,'Noto Sans KR',sans-serif;background:linear-gradient(120deg,#0f172a,#0b1220);color:#fff}
     .wrap{height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:2rem}
@@ -21,7 +21,7 @@
     <div class="card">
       <h1>이야기의 시작</h1>
 
-      <!-- 오디오 파일 경로를 수정하세요 (예: ./bgm.mp3 또는 외부 URL) -->
+      <!-- 오디오 파일 경로를 수정하세요 -->
       <audio id="bgm" loop preload="auto">
         <source src="./bgm.mp3" type="audio/mpeg">
         브라우저가 오디오 태그를 지원하지 않습니다.
@@ -34,37 +34,33 @@
   </div>
 
   <script>
-    // 브라우저 정책으로 자동 재생이 차단될 수 있으므로 재생 시도 후 실패하면 버튼을 보여줍니다.
     (function(){
       const audio = document.getElementById('bgm');
       const btn = document.getElementById('playBtn');
 
-      function tryPlay(){
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-          playPromise.then(()=>{
-            // 재생 성공 — 버튼 숨김
-            btn.style.display = 'none';
-          }).catch(()=>{
-            // 자동 재생 차단 — 버튼 표시
-            btn.style.display = 'inline-block';
-          });
-        }
+      function tryAutoplay(){
+        audio.muted = true;       // 잠깐 muted
+        audio.play().then(()=>{
+          // 성공 시 muted 해제, 볼륨 조절
+          audio.muted = false;
+          audio.volume = 0.5;
+          btn.style.display='none';
+        }).catch(()=>{
+          // 자동 재생 차단 시 버튼 표시
+          btn.style.display='inline-block';
+        });
       }
 
-      // 페이지 로드 시 자동 재생 시도
-      window.addEventListener('load', tryPlay);
+      window.addEventListener('load', tryAutoplay);
 
-      // 사용자가 상호작용하면 재생 (터치/클릭 등)
+      // 사용자 상호작용 시 재생
       ['click','keydown','touchstart'].forEach(evt=>{
         window.addEventListener(evt, function once(){
-          tryPlay();
-          // 한 번만 실행
+          tryAutoplay();
           ['click','keydown','touchstart'].forEach(e=>window.removeEventListener(e, once));
         });
       });
 
-      // 버튼으로 강제 재생
       btn.addEventListener('click', ()=>{
         audio.play().then(()=>{btn.style.display='none'}).catch(()=>{});
       });
