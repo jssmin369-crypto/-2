@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>간단한 BGM 페이지</title>
+  <style>
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Roboto,'Noto Sans KR',sans-serif;background:linear-gradient(120deg,#0f172a,#0b1220);color:#fff}
+    .wrap{height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:2rem}
+    .card{backdrop-filter:blur(6px);background:rgba(255,255,255,0.03);padding:2rem;border-radius:12px;box-shadow:0 8px 30px rgba(2,6,23,0.6);max-width:720px}
+    h1{margin:0 0 .5rem;font-size:clamp(20px,4vw,36px)}
+    p{margin:.25rem 0 1rem;opacity:.85}
+    #playBtn{display:none;padding:.6rem 1rem;border-radius:8px;border:0;background:rgba(255,255,255,0.06);color:#fff;cursor:pointer}
+    small{display:block;margin-top:8px;opacity:.6;font-size:12px}
+    audio{display:none}
+    .credit{margin-top:12px;font-size:12px;opacity:.6}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>이야기의 시작</h1>
+
+      <!-- 오디오 파일 경로를 수정하세요 (예: ./bgm.mp3 또는 외부 URL) -->
+      <audio id="bgm" loop preload="auto">
+        <source src="./bgm.mp3" type="audio/mpeg">
+        브라우저가 오디오 태그를 지원하지 않습니다.
+      </audio>
+
+      <button id="playBtn">BGM 재생하기</button>
+      <div class="credit">-- 간단한 소개 텍스트 또는 크레딧 --</div>
+      <small>자동 재생이 차단되는 브라우저에서는 버튼을 눌러주세요.</small>
+    </div>
+  </div>
+
+  <script>
+    // 브라우저 정책으로 자동 재생이 차단될 수 있으므로 재생 시도 후 실패하면 버튼을 보여줍니다.
+    (function(){
+      const audio = document.getElementById('bgm');
+      const btn = document.getElementById('playBtn');
+
+      function tryPlay(){
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.then(()=>{
+            // 재생 성공 — 버튼 숨김
+            btn.style.display = 'none';
+          }).catch(()=>{
+            // 자동 재생 차단 — 버튼 표시
+            btn.style.display = 'inline-block';
+          });
+        }
+      }
+
+      // 페이지 로드 시 자동 재생 시도
+      window.addEventListener('load', tryPlay);
+
+      // 사용자가 상호작용하면 재생 (터치/클릭 등)
+      ['click','keydown','touchstart'].forEach(evt=>{
+        window.addEventListener(evt, function once(){
+          tryPlay();
+          // 한 번만 실행
+          ['click','keydown','touchstart'].forEach(e=>window.removeEventListener(e, once));
+        });
+      });
+
+      // 버튼으로 강제 재생
+      btn.addEventListener('click', ()=>{
+        audio.play().then(()=>{btn.style.display='none'}).catch(()=>{});
+      });
+    })();
+  </script>
+</body>
+</html>
